@@ -1,10 +1,16 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import MamoPayComponent from "../components/Payment";
+import Success from "../components/Success";
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div></div>
+    element: <MamoPayComponent />
+  },
+  {
+    path: "/mission-complete",
+    element: <Success />
   }
 ]);
 

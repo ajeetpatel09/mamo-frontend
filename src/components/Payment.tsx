@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import {  useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -25,57 +25,58 @@ const MamoPayComponent = () => {
             last_name: "Doe",
             link_type: "inline",
             amount: 100,
-            return_url: "http://localhost:8000",
+            return_url: "http://localhost:5173/mission-complete",
             capacity: 1,
+            save_card: "optional"
           }),
         }
       );
 
       const data = await response.json();
-      setPayment_url(data.data.payment_url as string);
-      //   return data.data.payment_url as string;
+      // setPayment_url(data.data.payment_url as string);
+      return data.data.payment_url as string;
     } catch (error) {
       console.error("Error creating payment link:", error);
     }
   }
 
   // Function to load external script
-  //   const loadScript = (src: string): Promise<void> => {
-  //     return new Promise((resolve, reject) => {
-  //       // Check if the script is already loaded
-  //       if (document.querySelector(`script[src="${src}"]`)) {
-  //         resolve();
-  //         return;
-  //       }
-  //       const script = document.createElement("script");
-  //       script.src = src;
-  //       script.onload = () => {
-  //         console.log(`Script loaded: ${src}`);
-  //         resolve();
-  //       };
-  //       script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-  //       document.head.appendChild(script);
-  //     });
-  //   };
+  const loadScript = (src: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      // Check if the script is already loaded
+      if (document.querySelector(`script[src="${src}"]`)) {
+        resolve();
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        console.log(`Script loaded: ${src}`);
+        resolve();
+      };
+      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+      document.head.appendChild(script);
+    });
+  };
 
   // Function to initialize MamoPay on button click
-  //   const initializeMamoPay = async () => {
-  //     try {
-  //     //   const paymentLink:string = await createPayment();
-  //     //   console.log("Payment link:", paymentLink);
-  //     //     setPayment_url(paymentLink);
-  //     //   if (mamoCheckoutElementRef.current && paymentLink) {
-  //     //     mamoCheckoutElementRef.current.setAttribute("data-src", paymentLink);
-  //     //   } else {
-  //     //     console.error("Payment link or checkout element not found.");
-  //     //   }
-  //     //   await loadScript(
-  //     //     "https://assets.mamopay.com/stable/checkout-inline-2.0.0.min.js"
-  //     //   );
-  //     } catch (error) {
-  //       console.error("Error loading MamoPay script:", error);
-  //     }
-  //   };
+  const initializeMamoPay = async () => {
+    try {
+      const paymentLink = (await createPayment()) as string;
+      console.log("Payment link:", paymentLink);
+      setPayment_url(paymentLink);
+      if (mamoCheckoutElementRef.current && paymentLink) {
+        mamoCheckoutElementRef.current.setAttribute("data-src", paymentLink);
+      } else {
+        console.error("Payment link or checkout element not found.");
+      }
+      await loadScript(
+        "https://assets.mamopay.com/stable/checkout-inline-2.0.0.min.js"
+      );
+    } catch (error) {
+      console.error("Error loading MamoPay script:", error);
+    }
+  };
 
   return (
     <>
@@ -85,13 +86,17 @@ const MamoPayComponent = () => {
         </h3>
 
         <button
-          onClick={createPayment}
+          onClick={initializeMamoPay}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
           Initiate Payment
         </button>
 
-        <div id="mamo-checkout" ref={mamoCheckoutElementRef} className="w-[70vw] h-[70vh] my-5 mx-5">
+        <div
+          id="mamo-checkout"
+          ref={mamoCheckoutElementRef}
+          className="w-[70vw] h-[70vh] my-5 mx-5"
+        >
           <iframe
             src={payment_url}
             title="Embedded Content"

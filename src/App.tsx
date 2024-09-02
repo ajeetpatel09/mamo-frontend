@@ -1,6 +1,6 @@
 
 import "./App.css";
-import MamoPayComponent from "./components/Payment";
+// import MamoPayComponent from "./components/Payment";
 // import store from "./redux/app/store";
 import RouteConfig from "./routes/RouteConfig";
 
@@ -10,7 +10,7 @@ function App() {
     <>
       {/* <Provider store={store}> */}
       <RouteConfig />
-      <MamoPayComponent />
+      {/* <MamoPayComponent /> */}
       {/* </Provider> */}
     </>
   );
