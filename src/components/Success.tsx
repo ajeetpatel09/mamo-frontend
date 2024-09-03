@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { BACKEND_URL } from "../routes/IPConfig";
 
 const Success = () => {
   const [paymentInfo, setPaymentInfo] = useState({
@@ -15,14 +16,9 @@ const Success = () => {
   const location = useLocation();
 
   async function getPaymentInfo(chargeUID: string | null) {
-    // Retrieve individual query parameters
-    // const createdAt = getQueryParams().get("createdAt");
-    // const paymentLinkId = getQueryParams().get("paymentLinkId");
-    // const status = getQueryParams().get("status");
-    // const transactionId = getQueryParams().get("transactionId");
     if (!chargeUID) return;
     const response = await fetch(
-      `http://localhost:8000/api/v1/payment/get-info/${chargeUID}`,
+      `${BACKEND_URL}/payment/get-info/${chargeUID}`,
       {
         method: "GET",
       }

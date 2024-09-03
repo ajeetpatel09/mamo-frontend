@@ -1,4 +1,6 @@
-import {  useRef, useState } from "react";
+import { useRef } from "react";
+import MamoPay from "./script";
+import { BACKEND_URL } from "../routes/IPConfig";
 
 declare global {
   interface Window {
@@ -8,11 +10,10 @@ declare global {
 
 const MamoPayComponent = () => {
   const mamoCheckoutElementRef = useRef<HTMLDivElement | null>(null);
-  const [payment_url, setPayment_url] = useState("");
   async function createPayment() {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/payment/get-link",
+        `${BACKEND_URL}/payment/get-link`,
         {
           method: "POST",
           headers: {
@@ -27,7 +28,7 @@ const MamoPayComponent = () => {
             amount: 100,
             return_url: "http://localhost:5173/mission-complete",
             capacity: 1,
-            save_card: "optional"
+            save_card: "optional",
           }),
         }
       );
@@ -40,39 +41,26 @@ const MamoPayComponent = () => {
     }
   }
 
-  // Function to load external script
-  const loadScript = (src: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      // Check if the script is already loaded
-      if (document.querySelector(`script[src="${src}"]`)) {
-        resolve();
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = () => {
-        console.log(`Script loaded: ${src}`);
-        resolve();
-      };
-      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-      document.head.appendChild(script);
-    });
-  };
 
   // Function to initialize MamoPay on button click
   const initializeMamoPay = async () => {
     try {
       const paymentLink = (await createPayment()) as string;
       console.log("Payment link:", paymentLink);
-      setPayment_url(paymentLink);
       if (mamoCheckoutElementRef.current && paymentLink) {
         mamoCheckoutElementRef.current.setAttribute("data-src", paymentLink);
       } else {
         console.error("Payment link or checkout element not found.");
       }
-      await loadScript(
-        "https://assets.mamopay.com/stable/checkout-inline-2.0.0.min.js"
-      );
+    
+      const checkoutDiv = document.getElementById("mamo-checkout");
+      if (checkoutDiv !== null) {
+        const mamoPay = new MamoPay();
+        mamoPay.addIframeToWebsite(
+          "mamo-checkout",
+          checkoutDiv.getAttribute("data-src") || ""
+        );
+      }
     } catch (error) {
       console.error("Error loading MamoPay script:", error);
     }
@@ -97,7 +85,7 @@ const MamoPayComponent = () => {
           ref={mamoCheckoutElementRef}
           className="w-[70vw] h-[70vh] my-5 mx-5"
         >
-          <iframe
+          {/* <iframe
             src={payment_url}
             title="Embedded Content"
             style={{
@@ -106,7 +94,7 @@ const MamoPayComponent = () => {
               border: "none",
             }}
             allow="payment"
-          ></iframe>
+          ></iframe> */}
         </div>
       </div>
     </>
